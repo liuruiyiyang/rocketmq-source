@@ -20,5 +20,5 @@ import (
 )
 
 func main() {
-	adapter.Main("sample-source", myadapter.NewEnv, myadapter.NewAdapter)
+	adapter.Main("rocketmq-source", myadapter.NewEnv, myadapter.NewAdapter)
 }

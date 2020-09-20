@@ -25,6 +25,16 @@ github.com/alecthomas/template
 github.com/alecthomas/template/parse
 # github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
 github.com/alecthomas/units
+# github.com/apache/rocketmq-client-go/v2 v2.1.0-rc3
+## explicit
+github.com/apache/rocketmq-client-go/v2
+github.com/apache/rocketmq-client-go/v2/consumer
+github.com/apache/rocketmq-client-go/v2/internal
+github.com/apache/rocketmq-client-go/v2/internal/remote
+github.com/apache/rocketmq-client-go/v2/internal/utils
+github.com/apache/rocketmq-client-go/v2/primitive
+github.com/apache/rocketmq-client-go/v2/producer
+github.com/apache/rocketmq-client-go/v2/rlog
 # github.com/aws/aws-sdk-go v1.31.12
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
@@ -95,6 +105,13 @@ github.com/davecgh/go-spew/spew
 # github.com/emicklei/go-restful v2.9.5+incompatible
 github.com/emicklei/go-restful
 github.com/emicklei/go-restful/log
+# github.com/emirpasic/gods v1.12.0
+github.com/emirpasic/gods/containers
+github.com/emirpasic/gods/maps
+github.com/emirpasic/gods/maps/treemap
+github.com/emirpasic/gods/trees
+github.com/emirpasic/gods/trees/redblacktree
+github.com/emirpasic/gods/utils
 # github.com/evanphx/json-patch v4.5.0+incompatible
 github.com/evanphx/json-patch
 # github.com/ghodss/yaml v1.0.0
@@ -116,6 +133,8 @@ github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
 # github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 github.com/golang/groupcache/lru
+# github.com/golang/mock v1.4.3
+github.com/golang/mock/gomock
 # github.com/golang/protobuf v1.4.2
 github.com/golang/protobuf/descriptor
 github.com/golang/protobuf/jsonpb
@@ -232,6 +251,12 @@ github.com/spf13/pflag
 ## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
+# github.com/tidwall/gjson v1.2.1
+github.com/tidwall/gjson
+# github.com/tidwall/match v1.0.1
+github.com/tidwall/match
+# github.com/tidwall/pretty v1.0.0
+github.com/tidwall/pretty
 # go.opencensus.io v0.22.4
 go.opencensus.io
 go.opencensus.io/internal
@@ -983,6 +1008,8 @@ knative.dev/pkg/webhook/resourcesemantics/validation
 knative.dev/test-infra/scripts
 # sigs.k8s.io/yaml v1.2.0
 sigs.k8s.io/yaml
+# stathat.com/c/consistent v1.0.0
+stathat.com/c/consistent
 # github.com/prometheus/client_golang => github.com/prometheus/client_golang v0.9.2
 # k8s.io/api => k8s.io/api v0.17.6
 # k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.6

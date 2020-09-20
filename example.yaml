@@ -15,7 +15,7 @@ metadata:
   name: sample-source
   namespace: knative-samples
 spec:
-  interval: "10s"
+  interval: "5s"
   sink:
     ref:
       apiVersion: serving.knative.dev/v1
@@ -28,7 +28,7 @@ metadata:
   name: sample-source-overrides
   namespace: knative-samples
 spec:
-  interval: "10s"
+  interval: "5s"
   ceOverrides:
     extensions:
       foo: bar

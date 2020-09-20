@@ -17,11 +17,15 @@ package adapter
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"time"
 
+	"github.com/apache/rocketmq-client-go/v2"
+	"github.com/apache/rocketmq-client-go/v2/consumer"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"go.uber.org/zap"
-
 	"knative.dev/eventing/pkg/adapter/v2"
 	"knative.dev/pkg/logging"
 )
@@ -42,54 +46,73 @@ type Adapter struct {
 	interval time.Duration
 	logger   *zap.SugaredLogger
 
-	nextID int
+	sequence int64
 }
 
-type dataExample struct {
-	Sequence  int    `json:"sequence"`
-	Heartbeat string `json:"heartbeat"`
-}
-
-func (a *Adapter) newEvent() cloudevents.Event {
+func (a *Adapter) newEvent(message *primitive.MessageExt) cloudevents.Event {
 	event := cloudevents.NewEvent()
-	event.SetType("dev.knative.sample")
-	event.SetSource("sample.knative.dev/heartbeat-source")
+	event.SetID(message.MsgId)
+	event.SetType("dev.knative.rocketmq")
+	event.SetSource("rocketmq.knative.dev/topic-source")
 
-	if err := event.SetData(cloudevents.ApplicationJSON, &dataExample{
-		Sequence:  a.nextID,
-		Heartbeat: a.interval.String(),
-	}); err != nil {
+	if err := event.SetData(cloudevents.ApplicationJSON, message); err != nil {
 		a.logger.Errorw("failed to set data")
 	}
-	a.nextID++
+	a.sequence++
 	return event
 }
 
 // Start runs the adapter.
 // Returns if ctx is cancelled or Send() returns an error.
 func (a *Adapter) Start(ctx context.Context) error {
-	a.logger.Infow("Starting heartbeat", zap.String("interval", a.interval.String()))
-	for {
-		select {
-		case <-time.After(a.interval):
-			event := a.newEvent()
+	a.logger.Infow("Starting to consume message from RocketMQ and pass to CloudEvent...")
+	a.logger.Infow("Configs: ", zap.String("interval", a.interval.String()))
+
+	c, _ := rocketmq.NewPushConsumer(
+		consumer.WithGroupName("knative_source"),
+		consumer.WithNsResovler(primitive.NewPassthroughResolver([]string{"30.25.106.54:9876"})),
+		// consumer.WithSuspendCurrentQueueTimeMillis(10000),
+	)
+	err := c.Subscribe("newOne", consumer.MessageSelector{}, func(ctx context.Context,
+		msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		for i := range msgs {
+			event := a.newEvent(msgs[i])
 			a.logger.Infow("Sending new event", zap.String("event", event.String()))
 			if result := a.client.Send(context.Background(), event); !cloudevents.IsACK(result) {
 				a.logger.Infow("failed to send event", zap.String("event", event.String()), zap.Error(result))
 				// We got an error but it could be transient, try again next interval.
 				continue
 			}
-		case <-ctx.Done():
-			a.logger.Info("Shutting down...")
-			return nil
 		}
+		return consumer.ConsumeSuccess, nil
+	})
+	if err != nil {
+		fmt.Println(err.Error())
 	}
+	// Note: start after subscribe
+	err = c.Start()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(-1)
+	}
+
+	for true {
+		time.Sleep(time.Hour)
+	}
+	a.logger.Info("Shutting down rocketmq push consumer...")
+	err = c.Shutdown()
+	if err != nil {
+		fmt.Printf("shutdown Consumer error: %s", err.Error())
+	}
+	a.logger.Info("rocketmq push consumer closed")
+	return err
 }
 
 func NewAdapter(ctx context.Context, aEnv adapter.EnvConfigAccessor, ceClient cloudevents.Client) adapter.Adapter {
 	env := aEnv.(*envConfig) // Will always be our own envConfig type
 	logger := logging.FromContext(ctx)
-	logger.Infow("Heartbeat example", zap.Duration("interval", env.Interval))
+	logger.Infow("RocketMQ Source")
 	return &Adapter{
 		interval: env.Interval,
 		client:   ceClient,
